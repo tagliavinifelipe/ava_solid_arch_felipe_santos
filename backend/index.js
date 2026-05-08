@@ -1,6 +1,10 @@
 const express = require('express')
 const cors = require('cors')
 const UserRouters = require('./routers/UserRouters')
+const PetRoutes = require('./routers/PetRoutes');
+
+app.use('/pets',PetRoutes) 
+
 
 const app = express()
 
