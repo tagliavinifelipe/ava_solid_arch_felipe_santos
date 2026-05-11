@@ -81,4 +81,28 @@ module.exports = class PetController {
             res.status(500).json({message: error})
         }
     }
+
+    static async getAllUserPets(req, res) {
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+        try{
+            const pets = await Pet.find ({ 'user._id': user._id}).sort('-createdAt')
+            res.status(200).json({ pets })
+        } catch(error){
+            res.status(500).json({message: error})
+        }
+    }
+
+    static async getAllUserAdoptions(req, res){
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+        try{
+            const pets = await Pet.find({ 'adopter._id': user._id }).sort('-createdAt')
+            res.status(200).json({ pets })
+        } catch(error){
+            res.status(500).json({message: error})
+        }
+    }
 }
