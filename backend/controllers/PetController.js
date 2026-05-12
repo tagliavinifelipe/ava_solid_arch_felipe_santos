@@ -157,4 +157,53 @@ module.exports = class PetController {
         }
 
     }
+
+    static async updatePet(req,res){
+        const id = req.params.id
+        const { name, age, weight, color} = req.body
+        const images = req.files
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+        if(!mongoose.isValidObjectId(id)){
+            res.status(422).json({message: 'Id invalido'})
+            return
+        }
+
+        try{
+            const pet = await Pet.findById(id)
+            if(!pet){
+                res.status(404).json({message: 'pet não encontrado'})
+                return
+            }
+
+            if(pet.user._id.toString() !== user._id.toString()){
+                res.status(403).json({message: 'voce não tem permissao para editar esse pet'})
+                return
+            }
+
+            if(name) pet.name = name
+            if(age) pet.age = age
+            if(weight) pet.weight = weight
+            if(color) pet.color = color
+
+            if(images && images.lenght > 0){
+                const imageNames = images.map((image) => image.filename)
+                pet.images = imageNames
+            }
+
+            const updatedPet = await Pet.findByIdAndUpdate(
+                {_id: id},
+                {$set: pet},
+                {new: true}
+            )
+
+            res.status(200).json({
+                message: 'Pet atualizado com sucesso',
+                pet: updatedPet
+            })
+        }catch(error){
+            res.status(500).json({message: error})
+        }
+    }
+       
 }
